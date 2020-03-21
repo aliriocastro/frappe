@@ -129,7 +129,8 @@ def read_options_from_html(html):
 	# use regex instead of soup-parser
 	for attr in ("margin-top", "margin-bottom", "margin-left", "margin-right", "page-size", "header-spacing", "orientation"):
 		try:
-			pattern = re.compile(r"(\.print-format)([\S|\s][^}]*?)(" + str(attr) + r":)(.+)(mm)?;")
+			#new pattern allows to use any measure for attrs (mm, in, cm) and also for orientation i.e. Landscape | Portrait
+			pattern = re.compile(r"(\.print-format)([\S|\s][^}]*?)(" + str(attr) + r":)(.+);")
 			match = pattern.findall(html)
 			if match:
 				options[attr] = str(match[-1][3]).strip()
