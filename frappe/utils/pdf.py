@@ -127,15 +127,25 @@ def read_options_from_html(html):
 	toggle_visible_pdf(soup)
 
 	# use regex instead of soup-parser
-	for attr in ("margin-top", "margin-bottom", "margin-left", "margin-right", "page-size", "header-spacing", "orientation"):
+	for attr in ("margin-top", "margin-bottom", "margin-left", "margin-right", "header-spacing"):
 		try:
-			#new pattern allows to use any measure for attrs (mm, in, cm) and also for orientation i.e. Landscape | Portrait
-			pattern = re.compile(r"(\.print-format)([\S|\s][^}]*?)(" + str(attr) + r":)(.+);")
+			pattern = re.compile(r"(\.print-format)([\S|\s][^}]*?)(" + str(attr) + r":)(.+)(mm;)")
 			match = pattern.findall(html)
 			if match:
 				options[attr] = str(match[-1][3]).strip()
 		except:
 			pass
+
+	#try:
+	if soup.wkhtmltopdf:
+		attrs = ("orientation", "page-size")
+
+		for attr in attrs:
+			if soup.wkhtmltopdf[attr]:
+	 			options[attr] = soup.wkhtmltopdf[attr][0]
+
+	#except:
+	#	pass
 
 	return soup.prettify(), options
 
