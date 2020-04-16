@@ -139,7 +139,7 @@ def read_options_from_html(html):
 	if soup.wkhtmltopdf:
 		wk_tag = soup.wkhtmltopdf.extract()
 
-		for attr in ("orientation", "page-size"):
+		for attr in ("orientation", "page-size", "margin-top", "margin-bottom", "margin-left", "margin-right", "header-spacing"):
 			if attr in wk_tag.attrs.keys():
 	 			options[attr] = wk_tag[attr]
 
