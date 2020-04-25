@@ -334,8 +334,8 @@ export default class GridRow {
 				column.static_area.toggle(false);
 				column.field_area.toggle(true);
 
-				if(this.frm) {
-					this.frm.script_manager.trigger(`${column.df.fieldname}_on_editable_control_rendered`);
+				if(me.frm) {
+					me.frm.script_manager.trigger(`${column.df.fieldname}_on_editable_control_rendered`);
 				}
 			});
 
