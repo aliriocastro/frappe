@@ -16,6 +16,8 @@ import frappe
 from frappe import _
 from frappe.utils import get_wkhtmltopdf_version, scrub_urls
 
+import json
+
 PDF_CONTENT_ERRORS = ["ContentNotFoundError", "ContentOperationNotPermittedError",
 	"UnknownContentError", "RemoteHostClosedError"]
 
@@ -23,6 +25,9 @@ PDF_CONTENT_ERRORS = ["ContentNotFoundError", "ContentOperationNotPermittedError
 def get_pdf(html, options=None, output=None):
 	html = scrub_urls(html)
 	html, options = prepare_options(html, options)
+
+	frappe.log_error(json.dumps(html), 'HTML Dict')
+	frappe.log_error(json.dumps(options), 'Options Dict')
 
 	options.update({
 		"disable-javascript": "",
