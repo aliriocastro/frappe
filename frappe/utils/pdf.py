@@ -23,11 +23,11 @@ PDF_CONTENT_ERRORS = ["ContentNotFoundError", "ContentOperationNotPermittedError
 
 
 def get_pdf(html, options=None, output=None):
+
+	frappe.log_error(json.dumps(html), 'HTML Raw Dict')
+
 	html = scrub_urls(html)
 	html, options = prepare_options(html, options)
-
-	frappe.log_error(json.dumps(html), 'HTML Dict')
-	frappe.log_error(json.dumps(options), 'Options Dict')
 
 	options.update({
 		"disable-javascript": "",
@@ -72,6 +72,9 @@ def get_pdf(html, options=None, output=None):
 		writer.encrypt(password)
 
 	filedata = get_file_data_from_writer(writer)
+
+	frappe.log_error(json.dumps(html), 'HTML Dict')
+	frappe.log_error(json.dumps(options), 'Options Dict')
 
 	return filedata
 
