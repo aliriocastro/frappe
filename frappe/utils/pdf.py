@@ -24,7 +24,7 @@ PDF_CONTENT_ERRORS = ["ContentNotFoundError", "ContentOperationNotPermittedError
 
 def get_pdf(html, options=None, output=None):
 
-	frappe.log_error(json.dumps(html), 'HTML Raw Dict')
+	frappe.log_error(html, 'HTML Raw Dict')
 
 	html = scrub_urls(html)
 	html, options = prepare_options(html, options)
@@ -73,7 +73,7 @@ def get_pdf(html, options=None, output=None):
 
 	filedata = get_file_data_from_writer(writer)
 
-	frappe.log_error(json.dumps(html), 'HTML Dict')
+	frappe.log_error(html, 'HTML Dict')
 	frappe.log_error(json.dumps(options), 'Options Dict')
 
 	return filedata
