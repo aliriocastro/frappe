@@ -186,6 +186,8 @@ def prepare_header_footer(soup):
 				"fontawesome": fontawesome
 			})
 
+			frappe.log_error(html, "HTML Id: {0}".format(html_id))
+
 			# create temp file
 			fname = os.path.join("/tmp", "frappe-pdf-{0}.html".format(frappe.generate_hash()))
 			with open(fname, "wb") as f:
