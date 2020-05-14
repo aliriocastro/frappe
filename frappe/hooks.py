@@ -336,3 +336,9 @@ global_search_doctypes = {
 		{"doctype": "Web Form"}
 	]
 }
+
+jenv = {
+    "methods": [
+        "get_default_ifu_by_item:labotech.stock.item.get_default_ifu_by_item"
+    ]
+}
