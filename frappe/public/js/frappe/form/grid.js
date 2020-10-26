@@ -372,7 +372,7 @@ export default class Grid {
 		return data;
 	}
 	get_modal_data() {
-		return this.df.get_data() ? this.df.get_data().filter(data => {
+		return this.df.get_data ? this.df.get_data().filter(data => {
 			if (!this.deleted_docs || !in_list(this.deleted_docs, data.name)) {
 				return data;
 			}
@@ -673,10 +673,6 @@ export default class Grid {
 					as_dataurl: true,
 					allow_multiple: false,
 					on_success(file) {
-						if (file.file_obj.type !== "text/csv") {
-							let msg = __(`Your file could not be processed. It should be a standard CSV file.`);
-							frappe.throw(msg);
-						}
 						var data = frappe.utils.csv_to_array(frappe.utils.get_decoded_string(file.dataurl));
 						// row #2 contains fieldnames;
 						var fieldnames = data[2];
