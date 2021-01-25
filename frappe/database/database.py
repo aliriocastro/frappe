@@ -192,6 +192,8 @@ class Database(object):
 			else:
 				raise
 
+			frappe.log(query)
+
 		if auto_commit: self.commit()
 
 		if not self._cursor.description:
