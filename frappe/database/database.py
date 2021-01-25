@@ -179,7 +179,6 @@ class Database(object):
 				frappe.errprint(("Execution time: {0} sec").format(round(time_end - time_start, 2)))
 
 		except Exception as e:
-			frappe.log_error(query, f"Error Query Execution")
 			if frappe.conf.db_type == 'postgres':
 				self.rollback()
 
