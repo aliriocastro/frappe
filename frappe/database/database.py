@@ -192,7 +192,7 @@ class Database(object):
 			else:
 				raise
 
-			frappe.log(query)
+			frappe.log_error(query, f"Error Query Execution")
 
 		if auto_commit: self.commit()
 
