@@ -232,7 +232,7 @@ def update_link_field_values(link_fields, old, new, doctype):
 				update `tab{table_name}` set `{fieldname}`=%s
 				where `{fieldname}`=%s""".format(
 					table_name=parent,
-					fieldname=field['fieldname']), (new, old), debug=1)
+					fieldname=field['fieldname']), (new, old))
 		# update cached link_fields as per new
 		if doctype=='DocType' and field['parent'] == old:
 			field['parent'] = new
