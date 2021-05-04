@@ -184,8 +184,8 @@ def insert_many(docs=None):
 
 	out = []
 
-	if len(docs) > 200:
-		frappe.throw(_('Only 200 inserts allowed in one request'))
+	if len(docs) > 1000:
+		frappe.throw(_('Only 1000 inserts allowed in one request'))
 
 	for doc in docs:
 		if doc.get("parent") and doc.get("parenttype"):

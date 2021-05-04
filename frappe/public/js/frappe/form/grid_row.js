@@ -348,6 +348,10 @@ export default class GridRow {
 				me.make_control(column);
 				column.static_area.toggle(false);
 				column.field_area.toggle(true);
+
+				if(me.frm) {
+					me.frm.script_manager.trigger(`${column.df.fieldname}_on_editable_control_rendered`, column.df.parent);
+				}
 			});
 
 			frappe.ui.form.editable_row = this;
