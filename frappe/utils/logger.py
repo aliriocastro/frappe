@@ -13,6 +13,8 @@ from six import text_type
 import frappe
 from frappe.utils import get_sites
 
+# support for opencensus-azure
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 
 default_log_level = logging.DEBUG
 
@@ -61,6 +63,7 @@ def get_logger(module=None, with_more_info=False, allow_site=True, filter=None, 
 	handler = RotatingFileHandler(log_filename, maxBytes=max_size, backupCount=file_count)
 	handler.setFormatter(formatter)
 	logger.addHandler(handler)
+	logger.addHandler(AzureLogHandler(connection_string='InstrumentationKey=dadca512-024c-4645-93a1-8f05ffc6e323;IngestionEndpoint=https://eastus-0.in.applicationinsights.azure.com/'))
 
 	if site:
 		sitelog_filename = os.path.join(site, "logs", logfile)
