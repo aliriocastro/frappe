@@ -18,6 +18,7 @@ from frappe import _
 from frappe.utils import scrub_urls
 
 import json
+from frappe.utils.jinja import is_rtl
 
 PDF_CONTENT_ERRORS = ["ContentNotFoundError", "ContentOperationNotPermittedError",
 	"UnknownContentError", "RemoteHostClosedError"]
@@ -196,7 +197,9 @@ def prepare_header_footer(soup):
 				"content": content,
 				"styles": styles,
 				"html_id": html_id,
-				"css": css
+				"css": css,
+				"lang": frappe.local.lang,
+				"layout_direction": "rtl" if is_rtl else "ltr"
 			})
 
 			#frappe.log_error(html, "HTML Id: {0}".format(html_id))
