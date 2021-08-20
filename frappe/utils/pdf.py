@@ -199,7 +199,7 @@ def prepare_header_footer(soup):
 				"html_id": html_id,
 				"css": css,
 				"lang": frappe.local.lang,
-				"layout_direction": "rtl" if is_rtl else "ltr"
+				"layout_direction": "rtl" if is_rtl() else "ltr"
 			})
 
 			#frappe.log_error(html, "HTML Id: {0}".format(html_id))
