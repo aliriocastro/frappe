@@ -308,7 +308,7 @@ def get_definition(fieldtype, precision=None, length=None):
 		# This check needs to exist for backward compatibility.
 		# Till V13, default size used for float, currency and percent are (18, 6).
 		if fieldtype in ["Float", "Currency", "Percent"] and cint(precision) > 6:
-			size = '21,9'
+			size = '24,9' # cambiado por alirio castro para poder aceptar los valores de venezuela
 
 		if coltype == "varchar" and length:
 			size = length
