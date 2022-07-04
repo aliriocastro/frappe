@@ -70,6 +70,9 @@ frappe.breadcrumbs = {
 				this.set_form_breadcrumb(breadcrumbs, view);
 			} else if (breadcrumbs.doctype && view === 'list') {
 				this.set_list_breadcrumb(breadcrumbs);
+			} else if (breadcrumbs.doctype && view == 'dashboard-view') {
+				this.set_list_breadcrumb(breadcrumbs);
+				this.set_dashboard_breadcrumb(breadcrumbs);
 			}
 		}
 
@@ -147,7 +150,7 @@ frappe.breadcrumbs = {
 
 	set_form_breadcrumb(breadcrumbs, view) {
 		const doctype = breadcrumbs.doctype;
-		const docname = frappe.get_route()[2];
+		const docname = frappe.get_route().slice(2).join("/");
 		let form_route = `/app/${frappe.router.slug(doctype)}/${docname}`;
 		$(`<li><a href="${form_route}">${__(docname)}</a></li>`)
 			.appendTo(this.$breadcrumbs);
@@ -162,6 +165,14 @@ frappe.breadcrumbs = {
 			});
 		}
 
+	},
+
+	set_dashboard_breadcrumb(breadcrumbs) {
+		const doctype = breadcrumbs.doctype;
+		const docname = frappe.get_route()[1];
+		let dashboard_route = `/app/${frappe.router.slug(doctype)}/${docname}`;
+		$(`<li><a href="${dashboard_route}">${__(docname)}</a></li>`)
+			.appendTo(this.$breadcrumbs);
 	},
 
 	setup_modules() {
