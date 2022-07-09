@@ -62,7 +62,7 @@ def get_logger(
 	handler = RotatingFileHandler(log_filename, maxBytes=max_size, backupCount=file_count)
 	handler.setFormatter(formatter)
 	logger.addHandler(handler)
-	logger.addHandler(AzureLogHandler(connection_string='InstrumentationKey=dadca512-024c-4645-93a1-8f05ffc6e323;IngestionEndpoint=https://eastus-0.in.applicationinsights.azure.com/'))
+	# logger.addHandler(AzureLogHandler(connection_string='InstrumentationKey=dadca512-024c-4645-93a1-8f05ffc6e323;IngestionEndpoint=https://eastus-0.in.applicationinsights.azure.com/'))
 
 	if site:
 		sitelog_filename = os.path.join(site, "logs", logfile)
