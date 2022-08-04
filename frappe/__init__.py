@@ -40,7 +40,7 @@ from .utils.lazy_loader import lazy_import
 # Lazy imports
 faker = lazy_import("faker")
 
-__version__ = "13.34.0"
+__version__ = "13.36.3"
 
 __title__ = "Frappe Framework"
 
@@ -83,7 +83,7 @@ class _dict(dict):
 		return _dict(dict(self).copy())
 
 
-def _(msg, lang=None, context=None):
+def _(msg, lang=None, context=None) -> str:
 	"""Returns translated string in current lang, if exists.
 	Usage:
 	        _('Change')
