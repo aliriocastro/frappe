@@ -527,9 +527,8 @@ def send_one(email, smtpserver=None, auto_commit=True, now=False):
 			if not frappe.flags.in_test:
 				method = get_hook_method("override_email_send")
 				if method:
-					queue = frappe.get_doc("Email Queue", email.name)
+					queue = frappe.get_cached_doc("Email Queue", email.name)
 					method(queue, email.sender, recipient.recipient, message)
-					return
 				else:
 					smtpserver.sess.sendmail(email.sender, recipient.recipient, message)
 
@@ -643,8 +642,8 @@ def prepare_message(email, recipient, recipients_list):
 		message = message.replace(
 			"<!--email_open_check-->",
 			quopri.encodestring(
-				'<img src="https://{}/api/method/frappe.core.doctype.communication.email.mark_email_as_seen?name={}"/>'.format(
-					frappe.local.site, email.communication
+				'<img src="{}/api/method/frappe.core.doctype.communication.email.mark_email_as_seen?name={}"/>'.format(
+					get_url(), email.communication
 				).encode()
 			).decode(),
 		)

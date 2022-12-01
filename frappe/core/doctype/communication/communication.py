@@ -169,7 +169,7 @@ class Communication(Document):
 
 		_signature = quill_parser.parse(signature)[0] if "ql-editor" in signature else None
 
-		if (_signature or signature) not in self.content:
+		if (cstr(_signature) or signature) not in self.content:
 			self.content = f'{self.content}</p><br><p class="signature">{signature}'
 
 	def before_save(self):
@@ -191,8 +191,10 @@ class Communication(Document):
 
 	def notify_change(self, action):
 		frappe.publish_realtime(
-			"update_docinfo_for_{}_{}".format(self.reference_doctype, self.reference_name),
+			"docinfo_update",
 			{"doc": self.as_dict(), "key": "communications", "action": action},
+			doctype=self.reference_doctype,
+			docname=self.reference_name,
 			after_commit=True,
 		)
 
