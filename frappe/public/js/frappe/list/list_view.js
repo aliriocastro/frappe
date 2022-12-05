@@ -103,14 +103,6 @@ frappe.views.ListView = class ListView extends frappe.views.BaseList {
 		return this.get_list_view_settings();
 	}
 
-	get_list_view_settings() {
-		return frappe
-			.call("frappe.desk.listview.get_list_settings", {
-				doctype: this.doctype,
-			})
-			.then((doc) => (this.list_view_settings = doc.message || {}));
-	}
-
 	on_sort_change(sort_by, sort_order) {
 		this.sort_by = sort_by;
 		this.sort_order = sort_order;
@@ -903,11 +895,7 @@ frappe.views.ListView = class ListView extends frappe.views.BaseList {
 			return this.settings.get_form_link(doc);
 		}
 
-		const docname = doc.name.match(/[%'"#\s]/)
-			? encodeURIComponent(doc.name)
-			: doc.name;
-
-		return `/app/${frappe.router.slug(frappe.router.doctype_layout || this.doctype)}/${docname}`;
+		return `/app/${frappe.router.slug(frappe.router.doctype_layout || this.doctype)}/${encodeURIComponent(doc.name)}`;
 	}
 
 	get_seen_class(doc) {
@@ -1292,7 +1280,15 @@ frappe.views.ListView = class ListView extends frappe.views.BaseList {
 		) {
 			return;
 		}
+		frappe.socketio.list_subscribe(this.doctype);
 		frappe.realtime.on("list_update", (data) => {
+			if (data && data.doctype && data.name) {
+				let doc = frappe.get_doc(data.doctype, data.name);
+				if (doc && doc.__unsaved) {
+					frappe.model.remove_from_locals(data.doctype, data.name);
+				}
+			}
+
 			if (this.filter_area.is_being_edited()) {
 				return;
 			}
@@ -1887,7 +1883,12 @@ frappe.views.ListView = class ListView extends frappe.views.BaseList {
 		// refresh list view
 		const page_name = frappe.get_route_str();
 		const list_view = frappe.views.list_view[page_name];
-		list_view && list_view.on_update(data);
+		if (
+			list_view && list_view.list_view_settings &&
+			!list_view.list_view_settings.disable_auto_refresh
+		) {
+			list_view.on_update(data);
+		}
 	}
 };
 

@@ -5,6 +5,7 @@ from __future__ import print_function, unicode_literals
 
 import copy
 import json
+from typing import List
 
 from six import string_types
 
@@ -12,7 +13,7 @@ import frappe
 import frappe.share
 from frappe import _, msgprint
 from frappe.query_builder import DocType
-from frappe.utils import cint
+from frappe.utils import cint, cstr
 
 rights = (
 	"select",
@@ -362,9 +363,7 @@ def has_controller_permissions(doc, ptype, user=None):
 
 
 def get_doctypes_with_read():
-	return list(
-		set([p.parent if type(p.parent) == str else p.parent.encode("UTF8") for p in get_valid_perms()])
-	)
+	return list({cstr(p.parent) for p in get_valid_perms() if p.parent})
 
 
 def get_valid_perms(doctype=None, user=None):
@@ -499,6 +498,7 @@ def add_user_permission(
 				for_value=name,
 				is_default=is_default,
 				applicable_for=applicable_for,
+				apply_to_all_doctypes=0 if applicable_for else 1,
 				hide_descendants=hide_descendants,
 			)
 		).insert(ignore_permissions=ignore_permissions)
@@ -615,19 +615,17 @@ def reset_perms(doctype):
 	frappe.db.sql("""delete from `tabCustom DocPerm` where parent=%s""", doctype)
 
 
-def get_linked_doctypes(dt):
-	return list(
-		set(
-			[dt]
-			+ [
-				d.options
-				for d in frappe.get_meta(dt).get(
-					"fields",
-					{"fieldtype": "Link", "ignore_user_permissions": ("!=", 1), "options": ("!=", "[Select]")},
-				)
-			]
+def get_linked_doctypes(dt: str) -> List:
+	meta = frappe.get_meta(dt)
+	linked_doctypes = [dt] + [
+		d.options
+		for d in meta.get(
+			"fields",
+			{"fieldtype": "Link", "ignore_user_permissions": ("!=", 1), "options": ("!=", "[Select]")},
 		)
-	)
+	]
+
+	return list(set(linked_doctypes))
 
 
 def get_doc_name(doc):
