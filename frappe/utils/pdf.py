@@ -68,6 +68,9 @@ def get_pdf(html, options=None, output: PdfWriter | None = None):
 
 	filedata = get_file_data_from_writer(writer)
 
+	#frappe.log_error(html, 'HTML Dict')
+	#frappe.log_error(json.dumps(options), 'Options Dict')
+
 	return filedata
 
 
@@ -175,8 +178,17 @@ def read_options_from_html(html):
 		except Exception:
 			pass
 
-	return str(soup), options
+	if soup.wkhtmltopdf:
+		wk_tag = soup.wkhtmltopdf.extract()
 
+		# if margin-top or margin-bottom is specified together with header-html or footer-html it could cause unexpected behavior
+		# wkhtmltopdf will trunk the header/footer to the indicated margin-top/bottom height instead of separate it from the border
+
+		for attr in ("orientation", "page-size", "margin-top", "margin-bottom", "margin-left", "margin-right", "header-spacing"):
+			if attr in wk_tag.attrs.keys():
+	 			options[attr] = wk_tag[attr]
+
+	return soup.prettify(), options
 
 def prepare_header_footer(soup):
 	options = {}
@@ -208,6 +220,8 @@ def prepare_header_footer(soup):
 					"layout_direction": "rtl" if is_rtl() else "ltr",
 				},
 			)
+
+			#frappe.log_error(html, "HTML Id: {0}".format(html_id))
 
 			# create temp file
 			fname = os.path.join("/tmp", f"frappe-pdf-{frappe.generate_hash()}.html")
