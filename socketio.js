@@ -40,7 +40,6 @@ io.use((socket, next) => {
 			sid: cookies.sid,
 		})
 		.then((res) => {
-			console.log(`User ${res.body.message.user} found`);
 			socket.user = res.body.message.user;
 			socket.user_type = res.body.message.user_type;
 			socket.sid = cookies.sid;
@@ -60,8 +59,8 @@ io.on("connection", function (socket) {
 		socket.join(get_site_room(socket));
 	}
 
-	socket.on("list_update", function (doctype) {
-		can_subscribe_list({
+	socket.on("doctype_subscribe", function (doctype) {
+		can_subscribe_doctype({
 			socket,
 			doctype,
 			callback: () => {
@@ -305,11 +304,11 @@ function can_subscribe_doc(args) {
 		});
 }
 
-function can_subscribe_list(args) {
+function can_subscribe_doctype(args) {
 	if (!args) return;
 	if (!args.doctype) return;
 	request
-		.get(get_url(args.socket, "/api/method/frappe.realtime.can_subscribe_list"))
+		.get(get_url(args.socket, "/api/method/frappe.realtime.can_subscribe_doctype"))
 		.type("form")
 		.query({
 			sid: args.socket.sid,
@@ -325,7 +324,7 @@ function can_subscribe_list(args) {
 				args.callback(err, res);
 				return true;
 			}
-			log("ERROR (can_subscribe_list): ", err, res);
+			log("ERROR (can_subscribe_doctype): ", err, res);
 		});
 }
 
