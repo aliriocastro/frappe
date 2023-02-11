@@ -975,8 +975,14 @@ class BaseDocument:
 					)
 				if self_value != db_value:
 					frappe.throw(
-						_("Not allowed to change {0} after submission").format(df.label),
+						_("{0} Not allowed to change {1} after submission from {2} to {3}").format(
+							f"Row #{self.idx}:" if self.get("parent") else "",
+							frappe.bold(_(df.label)),
+							frappe.bold(db_value),
+							frappe.bold(self_value),
+						),
 						frappe.UpdateAfterSubmitError,
+						title=_("Cannot Update After Submit"),
 					)
 
 	def _sanitize_content(self):
@@ -1056,7 +1062,7 @@ class BaseDocument:
 	def is_dummy_password(self, pwd):
 		return "".join(set(pwd)) == "*"
 
-	def precision(self, fieldname, parentfield=None):
+	def precision(self, fieldname, parentfield=None) -> int | None:
 		"""Returns float precision for a particular field (or get global default).
 
 		:param fieldname: Fieldname for which precision is required.

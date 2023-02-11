@@ -33,7 +33,7 @@ from frappe.model.meta import Meta
 from frappe.modules import get_doc_path, make_boilerplate
 from frappe.modules.import_file import get_file_path
 from frappe.query_builder.functions import Concat
-from frappe.utils import cint
+from frappe.utils import cint, random_string
 from frappe.website.utils import clear_cache
 
 if TYPE_CHECKING:
@@ -360,8 +360,10 @@ class DocType(Document):
 							d.fieldname = d.fieldname + "_column"
 						elif d.fieldtype == "Tab Break":
 							d.fieldname = d.fieldname + "_tab"
+					elif d.fieldtype in ("Section Break", "Column Break", "Tab Break"):
+						d.fieldname = d.fieldtype.lower().replace(" ", "_") + "_" + str(random_string(5))
 					else:
-						d.fieldname = d.fieldtype.lower().replace(" ", "_") + "_" + str(d.idx)
+						frappe.throw(_("Row #{}: Fieldname is required").format(d.idx), title="Missing Fieldname")
 				else:
 					if d.fieldname in restricted:
 						frappe.throw(_("Fieldname {0} is restricted").format(d.fieldname), InvalidFieldNameError)
@@ -877,7 +879,7 @@ def validate_series(dt, autoname=None, name=None):
 	if not autoname and dt.get("fields", {"fieldname": "naming_series"}):
 		dt.autoname = "naming_series:"
 	elif dt.autoname and dt.autoname.startswith("naming_series:"):
-		fieldname = dt.autoname.split("naming_series:")[0] or "naming_series"
+		fieldname = dt.autoname.split("naming_series:", 1)[0] or "naming_series"
 		if not dt.get("fields", {"fieldname": fieldname}):
 			frappe.throw(
 				_("Fieldname called {0} must exist to enable autonaming").format(frappe.bold(fieldname)),
@@ -905,7 +907,7 @@ def validate_series(dt, autoname=None, name=None):
 		and (not autoname.startswith("format:"))
 	):
 
-		prefix = autoname.split(".")[0]
+		prefix = autoname.split(".", 1)[0]
 		doctype = frappe.qb.DocType("DocType")
 		used_in = (
 			frappe.qb.from_(doctype)
@@ -1127,7 +1129,7 @@ def validate_fields(meta):
 					d.options = options
 
 	def check_hidden_and_mandatory(docname, d):
-		if d.hidden and d.reqd and not d.default:
+		if d.hidden and d.reqd and not d.default and not frappe.flags.in_migrate:
 			frappe.throw(
 				_("{0}: Field {1} in row {2} cannot be hidden and mandatory without default").format(
 					docname, d.label, d.idx
@@ -1340,7 +1342,7 @@ def validate_fields(meta):
 		if meta.sort_field:
 			sort_fields = [meta.sort_field]
 			if "," in meta.sort_field:
-				sort_fields = [d.split()[0] for d in meta.sort_field.split(",")]
+				sort_fields = [d.split(maxsplit=1)[0] for d in meta.sort_field.split(",")]
 
 			for fieldname in sort_fields:
 				if fieldname not in (fieldname_list + list(default_fields) + list(child_table_fields)):
