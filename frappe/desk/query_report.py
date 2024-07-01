@@ -43,6 +43,9 @@ def get_report_doc(report_name):
 				doc.custom_filters = data.get("filters")
 		doc.is_custom_report = True
 
+		# Follow whatever the custom report has set for prepared report field
+		doc.prepared_report = custom_report_doc.prepared_report
+
 	if not doc.is_permitted():
 		frappe.throw(
 			_("You don't have access to Report: {0}").format(report_name),
@@ -340,7 +343,7 @@ def export_query():
 	if isinstance(visible_idx, str):
 		visible_idx = json.loads(visible_idx)
 
-	data = run(report_name, form_params.filters, custom_columns=custom_columns)
+	data = run(report_name, form_params.filters, custom_columns=custom_columns, are_default_filters=False)
 	data = frappe._dict(data)
 	if not data.columns:
 		frappe.respond_as_web_page(

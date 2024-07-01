@@ -380,7 +380,7 @@ frappe.views.ListView = class ListView extends frappe.views.BaseList {
 					if (frappe.has_indicator(this.doctype) && df.fieldname === "status") {
 						return false;
 					}
-					if (!df.in_list_view) {
+					if (!df.in_list_view || df.is_virtual) {
 						return false;
 					}
 					return df.fieldname !== this.meta.title_field;
@@ -1968,7 +1968,7 @@ frappe.views.ListView = class ListView extends frappe.views.BaseList {
 		};
 
 		// bulk edit
-		if (has_editable_fields(doctype)) {
+		if (has_editable_fields(doctype) && !frappe.model.has_workflow(doctype)) {
 			actions_menu_items.push(bulk_edit());
 		}
 
@@ -2001,7 +2001,7 @@ frappe.views.ListView = class ListView extends frappe.views.BaseList {
 		}
 
 		// bulk delete
-		if (frappe.model.can_delete(doctype)) {
+		if (frappe.model.can_delete(doctype) && !frappe.model.has_workflow(doctype)) {
 			actions_menu_items.push(bulk_delete());
 		}
 
