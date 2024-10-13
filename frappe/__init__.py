@@ -47,7 +47,7 @@ from .utils.jinja import (
 )
 from .utils.lazy_loader import lazy_import
 
-__version__ = "14.77.1"
+__version__ = "14.82.1"
 __title__ = "Frappe Framework"
 
 controllers = {}
@@ -791,7 +791,7 @@ def is_whitelisted(method):
 		summary = _("You are not permitted to access this resource.")
 		detail = _("Function {0} is not whitelisted.").format(bold(f"{method.__module__}.{method.__name__}"))
 		msg = f"<details><summary>{summary}</summary>{detail}</details>"
-		throw(msg, PermissionError, title="Method Not Allowed")
+		throw(msg, PermissionError, title=_("Method Not Allowed"))
 
 	if is_guest and method not in xss_safe_methods:
 		# strictly sanitize form_dict
@@ -2253,8 +2253,11 @@ def log_error(title=None, message=None, reference_doctype=None, reference_name=N
 
 
 def get_desk_link(doctype, name):
-	html = '<a href="/app/Form/{doctype}/{name}" style="font-weight: bold;">{doctype_local} {name}</a>'
-	return html.format(doctype=doctype, name=name, doctype_local=_(doctype))
+	meta = get_meta(doctype)
+	title = get_value(doctype, name, meta.get_title_field())
+
+	html = '<a href="/app/Form/{doctype}/{name}" style="font-weight: bold;">{doctype_local} {title_local}</a>'
+	return html.format(doctype=doctype, name=name, doctype_local=_(doctype), title_local=_(title))
 
 
 def bold(text):
