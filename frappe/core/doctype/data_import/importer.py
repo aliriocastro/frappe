@@ -600,8 +600,6 @@ class ImportFile:
 
 
 class Row:
-	link_values_exist_map: typing.ClassVar[dict] = {}
-
 	def __init__(self, index, row, doctype, header, import_type):
 		self.index = index
 		self.row_number = index + 1
@@ -745,10 +743,7 @@ class Row:
 		return value
 
 	def link_exists(self, value, df):
-		key = df.options + "::" + cstr(value)
-		if Row.link_values_exist_map.get(key) is None:
-			Row.link_values_exist_map[key] = frappe.db.exists(df.options, value)
-		return Row.link_values_exist_map.get(key)
+		return bool(frappe.db.exists(df.options, value, cache=True))
 
 	def parse_value(self, value, col):
 		df = col.df
@@ -844,8 +839,6 @@ class Header(Row):
 
 
 class Column:
-	seen: typing.ClassVar[list] = []
-
 	def __init__(self, index, header, doctype, column_values, map_to_field=None, seen=None):
 		if seen is None:
 			seen = []
