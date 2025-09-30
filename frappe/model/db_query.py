@@ -387,8 +387,6 @@ class DatabaseQuery:
 			"concat",
 			"concat_ws",
 			"if",
-			"ifnull",
-			"nullif",
 			"coalesce",
 			"connection_id",
 			"current_user",
@@ -399,6 +397,7 @@ class DatabaseQuery:
 			"user",
 			"version",
 			"global",
+			"sleep",
 		]
 
 		def _raise_exception():
@@ -417,16 +416,19 @@ class DatabaseQuery:
 			if SUB_QUERY_PATTERN.match(field):
 				# Check for subquery anywhere in the field, not just at the beginning
 				if "(" in lower_field:
-					location = lower_field.index("(")
-					subquery_token = lower_field[location + 1 :].lstrip().split(" ", 1)[0]
-					if any(keyword in subquery_token for keyword in blacklisted_keywords):
-						_raise_exception()
-
-				function = lower_field.split("(", 1)[0].rstrip()
-				if function in blacklisted_functions:
-					frappe.throw(
-						_("Use of function {0} in field is restricted").format(function), exc=frappe.DataError
-					)
+					# Check all parentheses pairs, not just the first one
+					paren_start = 0
+					while True:
+						location = lower_field.find("(", paren_start)
+						if location == -1:
+							break
+						token = lower_field[location + 1 :].lstrip().split(" ", 1)[0]
+						if any(
+							re.search(r"\b" + re.escape(keyword) + r"\b", token)
+							for keyword in blacklisted_keywords + blacklisted_functions
+						):
+							_raise_exception()
+						paren_start = location + 1
 
 				if "@" in lower_field:
 					# prevent access to global variables
@@ -1111,7 +1113,7 @@ class DatabaseQuery:
 			r"select\b.*\bfrom",
 		}
 
-		if any(re.search("\b" + pattern + "\b", _lower) for pattern in subquery_indicators):
+		if any(re.search(r"\b" + pattern + r"\b", _lower) for pattern in subquery_indicators):
 			frappe.throw(_("Cannot use sub-query here."))
 
 		blacklisted_sql_functions = {
@@ -1124,6 +1126,10 @@ class DatabaseQuery:
 			"version",
 			"substr",
 			"substring",
+			"updatexml",
+			"load_file",
+			"session_user",
+			"system_user",
 		}
 
 		for field in parameters.split(","):
