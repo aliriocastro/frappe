@@ -10,7 +10,7 @@ SPECIAL_CHAR_PATTERN = re.compile(r"[\W]", flags=re.UNICODE)
 VARCHAR_CAST_PATTERN = re.compile(r"varchar\(([\d]+)\)")
 
 CONFIGURABLE_DECIMAL_TYPES = ("Currency", "Float", "Percent")
-DEFAULT_DECIMAL_LENGTH = 21
+DEFAULT_DECIMAL_LENGTH = 24
 DEFAULT_DECIMAL_PRECISION = 9
 
 

@@ -171,11 +171,11 @@ class MariaDBDatabase(MariaDBConnectionUtil, MariaDBExceptionUtil, Database):
 	def setup_type_map(self):
 		self.db_type = "mariadb"
 		self.type_map = {
-			"Currency": ("decimal", "21,9"),
+			"Currency": ("decimal", "24,9"),
 			"Int": ("int", "11"),
 			"Long Int": ("bigint", "20"),
-			"Float": ("decimal", "21,9"),
-			"Percent": ("decimal", "21,9"),
+			"Float": ("decimal", "24,9"),
+			"Percent": ("decimal", "24,9"),
 			"Check": ("int", "1"),
 			"Small Text": ("text", ""),
 			"Long Text": ("longtext", ""),
@@ -192,7 +192,7 @@ class MariaDBDatabase(MariaDBConnectionUtil, MariaDBExceptionUtil, Database):
 			"Dynamic Link": ("varchar", self.VARCHAR_LEN),
 			"Password": ("text", ""),
 			"Select": ("varchar", self.VARCHAR_LEN),
-			"Rating": ("decimal", "3,2"),
+			"Rating": ("int", "1"),
 			"Read Only": ("varchar", self.VARCHAR_LEN),
 			"Attach": ("text", ""),
 			"Attach Image": ("text", ""),
@@ -200,7 +200,7 @@ class MariaDBDatabase(MariaDBConnectionUtil, MariaDBExceptionUtil, Database):
 			"Color": ("varchar", self.VARCHAR_LEN),
 			"Barcode": ("longtext", ""),
 			"Geolocation": ("longtext", ""),
-			"Duration": ("decimal", "21,9"),
+			"Duration": ("decimal", "24,9"),
 			"Icon": ("varchar", self.VARCHAR_LEN),
 			"Phone": ("varchar", self.VARCHAR_LEN),
 			"Autocomplete": ("varchar", self.VARCHAR_LEN),

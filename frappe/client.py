@@ -226,8 +226,8 @@ def insert_many(docs=None):
 	if isinstance(docs, str):
 		docs = json.loads(docs)
 
-	if len(docs) > 200:
-		frappe.throw(_("Only 200 inserts allowed in one request"))
+	if len(docs) > 1000:
+		frappe.throw(_("Only 1000 inserts allowed in one request"))
 
 	return [insert_doc(doc).name for doc in docs]
 

@@ -225,6 +225,13 @@ def read_options_from_html(html):
 		"page-height",
 	)
 	options |= {style.name: style.value for style in valid_styles if style.name in attrs}
+
+	if soup.wkhtmltopdf:
+		wk_tag = soup.wkhtmltopdf.extract()
+		for attr in ("orientation", "page-size", "margin-top", "margin-bottom", "margin-left", "margin-right", "header-spacing"):
+			if attr in wk_tag.attrs:
+				options[attr] = wk_tag[attr]
+
 	return str(soup), options
 
 

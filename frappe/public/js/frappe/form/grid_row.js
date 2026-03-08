@@ -1198,6 +1198,13 @@ export default class GridRow {
 		column.field = field;
 		this.on_grid_fields_dict[df.fieldname] = field;
 		this.on_grid_fields.push(field);
+
+		if (me.frm) {
+			me.frm.script_manager.trigger(
+				`${column.df.fieldname}_on_editable_control_rendered`,
+				column.df.parent
+			);
+		}
 	}
 	set_arrow_keys(field) {
 		var me = this;
