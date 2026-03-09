@@ -85,4 +85,29 @@ context("Control Currency", () => {
 			cy.hide_dialog();
 		});
 	});
+
+	it("accepts numpad decimal for locales that use comma decimals", () => {
+		cy.window()
+			.its("frappe")
+			.then((frappe) => {
+				frappe.boot.sysdefaults.currency_precision = 2;
+				frappe.boot.sysdefaults.number_format = "#.###,##";
+			});
+
+		get_dialog_with_currency().as("dialog");
+		cy.wait(300);
+		cy.get_field(fieldname, "Currency").clear().focus().type("1");
+		cy.get_field(fieldname, "Currency").trigger("keydown", {
+			eventConstructor: "KeyboardEvent",
+			key: ".",
+			code: "NumpadDecimal",
+			which: 110,
+			keyCode: 110,
+			bubbles: true,
+		});
+		cy.get_field(fieldname, "Currency").type("5").blur();
+
+		cy.get_field(fieldname, "Currency").should("have.value", "1,50");
+		cy.hide_dialog();
+	});
 });

@@ -18,6 +18,20 @@ context("Control Float", () => {
 		});
 	}
 
+	function get_dialog_with_percent() {
+		return cy.dialog({
+			title: "Percent Check",
+			animate: false,
+			fields: [
+				{
+					fieldname: "percent_number",
+					fieldtype: "Percent",
+					Label: "Percent",
+				},
+			],
+		});
+	}
+
 	it("check value changes", () => {
 		get_dialog_with_float().as("dialog");
 		cy.wait(300);
@@ -44,6 +58,55 @@ context("Control Float", () => {
 				cy.get_field("float_number", "Float").should("have.value", d.focus_expected);
 			});
 		});
+	});
+
+	it("accepts numpad decimal for locales that use comma decimals", () => {
+		get_dialog_with_float().as("dialog");
+		cy.wait(300);
+
+		cy.window()
+			.its("frappe")
+			.then((frappe) => {
+				frappe.boot.sysdefaults.number_format = "#.###,##";
+			});
+
+		cy.get_field("float_number", "Float").clear().focus().type("1");
+		cy.get_field("float_number", "Float").trigger("keydown", {
+			eventConstructor: "KeyboardEvent",
+			key: ".",
+			code: "NumpadDecimal",
+			which: 110,
+			keyCode: 110,
+			bubbles: true,
+		});
+		cy.get_field("float_number", "Float").type("5").blur();
+
+		cy.get_field("float_number", "Float").should("have.value", "1,500");
+	});
+
+	it("accepts numpad decimal in percent fields for locales that use comma decimals", () => {
+		get_dialog_with_percent().as("dialog");
+		cy.wait(300);
+
+		cy.window()
+			.its("frappe")
+			.then((frappe) => {
+				frappe.boot.sysdefaults.number_format = "#.###,##";
+				frappe.boot.sysdefaults.float_precision = 3;
+			});
+
+		cy.get_field("percent_number", "Percent").clear().focus().type("1");
+		cy.get_field("percent_number", "Percent").trigger("keydown", {
+			eventConstructor: "KeyboardEvent",
+			key: ".",
+			code: "NumpadDecimal",
+			which: 110,
+			keyCode: 110,
+			bubbles: true,
+		});
+		cy.get_field("percent_number", "Percent").type("5").blur();
+
+		cy.get_field("percent_number", "Percent").should("have.value", "1,500");
 	});
 
 	function get_data() {
