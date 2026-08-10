@@ -1,9 +1,9 @@
 # Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 # License: MIT. See LICENSE
 
-import re
 from collections.abc import Iterable
 from datetime import timedelta
+from functools import cached_property, lru_cache
 
 import frappe
 import frappe.defaults
@@ -29,7 +29,6 @@ from frappe.utils import (
 	format_datetime,
 	get_formatted_email,
 	get_system_timezone,
-	has_gravatar,
 	now_datetime,
 	today,
 )
@@ -49,6 +48,7 @@ desk_properties = (
 	"bulk_actions",
 	"view_switcher",
 	"form_sidebar",
+	"form_navigation_buttons",
 	"timeline",
 	"dashboard",
 )
@@ -93,6 +93,7 @@ class User(Document):
 		follow_created_documents: DF.Check
 		follow_liked_documents: DF.Check
 		follow_shared_documents: DF.Check
+		form_navigation_buttons: DF.Check
 		form_sidebar: DF.Check
 		full_name: DF.Data | None
 		gender: DF.Link | None
@@ -239,14 +240,6 @@ class User(Document):
 			now=now,
 			enqueue_after_commit=True,
 		)
-
-		if self.name not in STANDARD_USERS and not self.user_image:
-			frappe.enqueue(
-				"frappe.core.doctype.user.user.update_gravatar",
-				name=self.name,
-				now=now,
-				enqueue_after_commit=True,
-			)
 
 		# Set user selected timezone
 		if self.time_zone:
@@ -411,19 +404,13 @@ class User(Document):
 	def password_reset_mail(self, link):
 		reset_password_template = frappe.db.get_system_setting("reset_password_template")
 
-		q = self.send_login_mail(
+		self.send_login_mail(
 			_("Password Reset"),
 			"password_reset",
 			{"link": link},
 			now=True,
 			custom_template=reset_password_template,
 		)
-		if q:
-			raw_message = q.message
-			parts = re.split(r"(?i)Dear", raw_message, maxsplit=1)
-			if len(parts) > 1:
-				redacted_message = parts[0] + "[THE FOLLOWING CONTENT HAS BEEN REDACTED FOR SECURITY REASONS]"
-				frappe.db.set_value("Email Queue", q.name, "message", redacted_message, update_modified=False)
 
 	def send_welcome_mail_to_user(self):
 		from frappe.utils import get_url
@@ -442,7 +429,7 @@ class User(Document):
 
 		welcome_email_template = frappe.db.get_system_setting("welcome_email_template")
 
-		q = self.send_login_mail(
+		self.send_login_mail(
 			subject,
 			"new_user",
 			dict(
@@ -451,12 +438,6 @@ class User(Document):
 			),
 			custom_template=welcome_email_template,
 		)
-		if q:
-			raw_message = q.message
-			parts = re.split(r"(?i)Hello", raw_message, maxsplit=1)
-			if len(parts) > 1:
-				redacted_message = parts[0] + "[THE FOLLOWING CONTENT HAS BEEN REDACTED FOR SECURITY REASONS]"
-				frappe.db.set_value("Email Queue", q.name, "message", redacted_message, update_modified=False)
 
 	def send_login_mail(self, subject, template, add_args, now=None, custom_template=None):
 		"""send mail with login details"""
@@ -498,6 +479,7 @@ class User(Document):
 			header=[subject, "green"],
 			delayed=(not now) if now is not None else self.flags.delay_emails,
 			retry=3,
+			redact_message_after_send=True,
 		)
 
 	def on_trash(self):
@@ -801,9 +783,14 @@ class User(Document):
 
 @frappe.whitelist()
 def get_timezones():
+	return {"timezones": _get_timezones()}
+
+
+@lru_cache(maxsize=1)
+def _get_timezones():
 	import pytz
 
-	return {"timezones": pytz.all_timezones}
+	return sorted(pytz.common_timezones)
 
 
 @frappe.whitelist()
@@ -1240,12 +1227,6 @@ def handle_password_test_fail(feedback: dict):
 		msg="".join(message_parts),
 		title=_("Password requirements not met"),
 	)
-
-
-def update_gravatar(name):
-	gravatar = has_gravatar(name)
-	if gravatar:
-		frappe.db.set_value("User", name, "user_image", gravatar)
 
 
 def throttle_user_creation():

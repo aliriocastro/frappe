@@ -999,8 +999,11 @@ class Document(BaseDocument):
 
 		return children
 
-	def run_method(self, method, *args, **kwargs):
+	def run_method(self, method: str, *args, **kwargs):
 		"""run standard triggers, plus those in hooks"""
+
+		if method.startswith("_"):
+			raise Exception("Run method is for hooks, avoid usage on internal methods")
 
 		def fn(self, *args, **kwargs):
 			method_object = getattr(self, method, None)
