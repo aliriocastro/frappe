@@ -8,6 +8,7 @@ $.extend(frappe.model, {
 		"Autocomplete",
 		"Attach",
 		"Attach Image",
+		"Attachment Gallery",
 		"Barcode",
 		"Button",
 		"Check",
@@ -50,6 +51,7 @@ $.extend(frappe.model, {
 		"Section Break",
 		"Column Break",
 		"Tab Break",
+		"Attachment Gallery",
 		"HTML",
 		"Table",
 		"Table MultiSelect",
@@ -68,7 +70,6 @@ $.extend(frappe.model, {
 		"modified",
 		"modified_by",
 		"_user_tags",
-		"_comments",
 		"_assign",
 		"_liked_by",
 		"docstatus",
@@ -132,7 +133,6 @@ $.extend(frappe.model, {
 		},
 		{ fieldname: "_user_tags", fieldtype: "Data", label: __("Tags") },
 		{ fieldname: "_liked_by", fieldtype: "Data", label: __("Liked By") },
-		{ fieldname: "_comments", fieldtype: "Text", label: __("Comments") },
 		{ fieldname: "_assign", fieldtype: "Text", label: __("Assigned To") },
 		{ fieldname: "docstatus", fieldtype: "Int", label: __("Document Status") },
 	],
@@ -460,7 +460,7 @@ $.extend(frappe.model, {
 	},
 
 	can_share: function (doctype, frm) {
-		let disable_sharing = cint(frappe.sys_defaults.disable_document_sharing);
+		let disable_sharing = frappe.defaults.is_enabled("disable_document_sharing");
 
 		if (disable_sharing && frappe.session.user !== "Administrator") {
 			return false;

@@ -1,4 +1,11 @@
 frappe.ui.form.ControlFloat = class ControlFloat extends frappe.ui.form.ControlInt {
+	static input_mode = "decimal";
+
+	// LABOTECH: el punto del teclado numérico escribe el separador decimal del formato.
+	// WHY: el navegador siempre escribe "." con NumpadDecimal. Con el formato #.###,## de
+	// Labotech ese punto se lee como separador de miles y 12.5 queda en 125. Si se revierte,
+	// los montos tecleados con el numpad salen multiplicados. input_mode no lo cubre: solo
+	// cambia el teclado en pantalla del celular. Commit 775ed40f86.
 	make_input() {
 		super.make_input();
 		this.bind_numpad_decimal_shortcut();

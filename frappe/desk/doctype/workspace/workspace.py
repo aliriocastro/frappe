@@ -256,7 +256,7 @@ def get_report_type(report):
 
 
 @frappe.whitelist()
-def new_page(new_page):
+def new_page(new_page: str):
 	if not loads(new_page):
 		return
 
@@ -291,7 +291,7 @@ def new_page(new_page):
 
 
 @frappe.whitelist()
-def save_page(title, public, new_widgets, blocks):
+def save_page(title: str, public: str | int, new_widgets: str, blocks: str):
 	public = frappe.parse_json(public)
 
 	filters = {"public": public, "label": title}
@@ -313,11 +313,13 @@ def save_page(title, public, new_widgets, blocks):
 
 
 @frappe.whitelist()
-def update_page(name, title, icon, indicator_color, parent, public):
+def update_page(name: str, title: str, icon: str, indicator_color: str, parent: str, public: str | int):
 	public = frappe.parse_json(public)
 	doc = frappe.get_doc("Workspace", name)
 
-	if not doc.get("public") and doc.get("for_user") != frappe.session.user and not is_workspace_manager():
+	if doc.get("public") and not is_workspace_manager():
+		frappe.throw(_("Need Workspace Manager role to edit public workspaces."), frappe.PermissionError)
+	elif not doc.get("public") and doc.get("for_user") != frappe.session.user and not is_workspace_manager():
 		frappe.throw(
 			_("Need Workspace Manager role to edit private workspace of other users"),
 			frappe.PermissionError,

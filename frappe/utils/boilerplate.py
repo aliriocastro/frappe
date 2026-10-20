@@ -499,11 +499,28 @@ app_license = "{app_license}"
 # before_app_uninstall = "{app_name}.utils.before_app_uninstall"
 # after_app_uninstall = "{app_name}.utils.after_app_uninstall"
 
+# Build
+# ------------------
+# To hook into the build process
+
+# after_build = "{app_name}.build.after_build"
+
+# To hook into the build process of other apps
+# The list of apps being built is passed as an argument
+
+# after_app_build = "{app_name}.build.after_app_build"
+
 # Desk Notifications
 # ------------------
 # See frappe.core.notifications.get_notification_config
 
 # notification_config = "{app_name}.notifications.get_notification_config"
+
+# Awesome Bar
+# -----------
+# Extra search results: list of dicts with label, description, route, index.
+# route: ["List", "ToDo"], "/desk/docs/some/page", or "https://example.com"
+# awesomebar_search = ["{app_name}.search.awesomebar_results"]
 
 # Permissions
 # -----------
