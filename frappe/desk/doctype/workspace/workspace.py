@@ -11,7 +11,7 @@ from frappe.desk.utils import validate_route_conflict
 from frappe.model.document import Document
 from frappe.model.rename_doc import rename_doc
 from frappe.modules.export_file import delete_folder, export_to_files
-from frappe.utils import strip_html
+from frappe.utils import cint, strip_html
 
 
 class Workspace(Document):
@@ -69,6 +69,18 @@ class Workspace(Document):
 
 		if self.public and not is_workspace_manager() and not disable_saving_as_public():
 			frappe.throw(_("You need to be Workspace Manager to edit this document"))
+
+		if (
+			not self.public
+			and self.for_user
+			and self.for_user != frappe.session.user
+			and not is_workspace_manager()
+		):
+			frappe.throw(
+				_("You are not allowed to edit this workspace"),
+				frappe.PermissionError,
+			)
+
 		if self.has_value_changed("title"):
 			validate_route_conflict(self.doctype, self.title)
 		else:
@@ -292,7 +304,9 @@ def new_page(new_page: str):
 
 @frappe.whitelist()
 def save_page(title: str, public: str | int, new_widgets: str, blocks: str):
-	public = frappe.parse_json(public)
+	# `public` llega del cliente y va a un filtro: un valor como [">=", 0] alcanzaría
+	# el espacio privado de otro usuario (GHSA-mcr4).
+	public = cint(frappe.parse_json(public))
 
 	filters = {"public": public, "label": title}
 
